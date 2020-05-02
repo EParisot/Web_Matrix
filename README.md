@@ -19,7 +19,7 @@ Commands:
 with C any random number,  
 X, Y a (int) position of a led,  
 R, G, B a (int) color,  
-T a (int) seconds delay,  
+T a (int) milliseconds delay,  
 S the starting position of a loop, N the number of iteration of the loop  
 If you provide a text of more than 5 chars, it will automatically be scrolled.  
 
