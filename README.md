@@ -1,5 +1,5 @@
 # Web Matrix
-LEDs Matrix controler over HTTP/WebSocket
+LEDs Matrix Arduino ESP32 controler over HTTP/WebSocket
 
 Control via Simple Interface :
 ![](imgs/img1.bmp)
@@ -24,3 +24,14 @@ S the starting position of a loop, N the number of iteration of the loop
 If you provide a test of more than 5 chars, it will automatically be scrolled.  
 
 Provide your Wifi credentials in the script or use SmartConfig to connect to your network
+
+libraries needed:
+```
+SPIFFS
+WebServer
+WebSocketsServer
+ArduinoJson
+FastLED
+LEDMatrix
+LEDText
+```
