@@ -5,8 +5,8 @@ Control via Simple Interface :
 ![](imgs/img1.bmp)
 
 And/Or you can send JSON data (via HTTP POST : http://IP:80 or WebSocket : ws://IP:1234) to the device:
-Commands:
-"""
+Commands:  
+```
 * [{"clear": C},
 *  {"pos": [X, Y], "color":[R, G, B]},
 *  {"delay": T},
@@ -14,7 +14,7 @@ Commands:
 *  {"fill": [R, G, B]},
 *  {"text": String}
 ]
-"""
+```
   
 with C any random number,  
 X, Y a (int) position of a led,  
