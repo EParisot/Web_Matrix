@@ -28,8 +28,8 @@ Provide your Wifi credentials in the script or use SmartConfig to connect to you
 libraries needed:
 ```
 SPIFFS -> https://github.com/pellepl/spiffs
-WebServer
-WebSocketsServer
+WebServer -> https://github.com/espressif/arduino-esp32/tree/master/libraries/WebServer
+WebSocketsServer 
 ArduinoJson -> https://github.com/bblanchon/ArduinoJson
 FastLED -> https://github.com/FastLED/FastLED
 LEDMatrix -> https://github.com/AaronLiddiment/LEDMatrix
