@@ -1,285 +1,296 @@
-<!DOCTYPE html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>ESP32 WebSocket</title>
+<!doctype html>
+<html lang="fr">
 
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+    <head>
+        <!-- Primary Meta -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="mobile-web-app-capable" content="yes">
 
-    <script language="javascript" type="text/javascript">
+        <!-- Page Title -->
+        <title>ESP32 WebSocket</title>
 
-        var url = "ws://IP:PORT/";
-        
-        // This is called when the page finishes loading
-        function init() {
-            
-            // Connect to WebSocket server
-            wsConnect(url);
-        }
-        
-        // Call this to connect to the WebSocket server
-        function wsConnect(url) {
-            
-            // Connect to WebSocket server
-            websocket = new WebSocket(url);
-            
-            // Assign callbacks
-            websocket.onopen = function(evt) { onOpen(evt) };
-            websocket.onclose = function(evt) { onClose(evt) };
-            websocket.onmessage = function(evt) { onMessage(evt) };
-            websocket.onerror = function(evt) { onError(evt) };
-        }
-        
-        // Called when a WebSocket connection is established with the server
-        function onOpen(evt) {
-        
-            // Log connection state
-            console.log("Connected");
-        }
-        
-        // Called when the WebSocket connection is closed
-        function onClose(evt) {
-        
-            // Log disconnection state
-            console.log("Disconnected");
-            
-            // Try to reconnect after a few seconds
-            setTimeout(function() { wsConnect(url) }, 2000);
-        }
-        
-        // Called when a message is received from the server
-        function onMessage(evt) {
-        
-            // Print out our received message
-            console.log("Received: " + evt.data);
-        }
-        
-        // Called when a WebSocket error occurs
-        function onError(evt) {
-            console.log("ERROR: " + evt.data);
-        }
-        
-        // Sends a message to the server (and prints it to the console)
-        function doSend(message) {
-            console.log("Sending: " + message);
-            websocket.send(message);
-        }
-        
-        // Call the init function as soon as the page loads
-        window.addEventListener("load", init, false);
-     
-    </script>
+        <!-- Secondary Meta -->
+        <meta name="description" content="text_exemple">
+        <meta name="author" content="Eric Parisot" />
+      
+        <!-- Stylesheets -->
+        <link rel="stylesheet" type="text/css" href="style.css">
 
-</head>
-<body>
-    <div id="drawingDiv">
-        <canvas id="drawingCanvas" width="1280" height="320"></canvas>
-    </div>
-    <div id="controlDiv">
-        <div id="picker_div">
-            <div id="picker"></div>
-            <div class="slider-wrapper">
-                <input type="range" id="brightness-slider" name="Brightness"
-                       min="0" max="100">
-            </div>
+        <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+        <script>
+
+            var url = "ws://IP:PORT/";
+            
+            // This is called when the page finishes loading
+            function init() {
+                
+                // Connect to WebSocket server
+                wsConnect(url);
+            }
+            
+            // Call this to connect to the WebSocket server
+            function wsConnect(url) {
+                
+                // Connect to WebSocket server
+                websocket = new WebSocket(url);
+                
+                // Assign callbacks
+                websocket.onopen = function(evt) { onOpen(evt) };
+                websocket.onclose = function(evt) { onClose(evt) };
+                websocket.onmessage = function(evt) { onMessage(evt) };
+                websocket.onerror = function(evt) { onError(evt) };
+            }
+            
+            // Called when a WebSocket connection is established with the server
+            function onOpen(evt) {
+            
+                // Log connection state
+                console.log("Connected");
+            }
+            
+            // Called when the WebSocket connection is closed
+            function onClose(evt) {
+            
+                // Log disconnection state
+                console.log("Disconnected");
+                
+                // Try to reconnect after a few seconds
+                setTimeout(function() { wsConnect(url) }, 2000);
+            }
+            
+            // Called when a message is received from the server
+            function onMessage(evt) {
+            
+                // Print out our received message
+                console.log("Received: " + evt.data);
+            }
+            
+            // Called when a WebSocket error occurs
+            function onError(evt) {
+                console.log("ERROR: " + evt.data);
+            }
+            
+            // Sends a message to the server (and prints it to the console)
+            function doSend(message) {
+                console.log("Sending: " + message);
+                websocket.send(message);
+            }
+            
+            // Call the init function as soon as the page loads
+            window.addEventListener("load", init, false);
+        
+        </script>
+    </head>
+
+    <body>
+        <div id="drawingDiv">
+            <canvas id="drawingCanvas" width="1280" height="320"></canvas>
         </div>
-        <div>
-            <input type="text" id="text">
-            <button id="textBtn" onclick=setText()>
-                <img alt="Text" src="https://img.icons8.com/ios/500/text.png"
+        <div id="controlDiv">
+            <div id="picker_div">
+                <div id="picker"></div>
+                <div class="slider-wrapper">
+                    <input type="range" id="brightness-slider" name="Brightness"
+                        min="0" max="100">
+                </div>
+            </div>
+            <div>
+                <input type="text" id="text">
+                <button id="textBtn" onclick=setText()>
+                    <img alt="Text" src="https://img.icons8.com/ios/500/text.png"
+                    width="64" height="64">
+                </button>
+            </div>
+            <button id="fillBtn" onclick=fillColor()>
+                <img alt="Filler" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Toicon-icon-stone-fill.svg/1200px-Toicon-icon-stone-fill.svg.png"
+                width="64" height="64">
+            </button>
+            <button id="eraserBtn" onclick=setBlackColor()>
+                <img alt="Eraser" src="https://www.freeiconspng.com/uploads/eraser-icon-16.png"
+                width="64" height="64">
+            </button>
+            <button id="clearBtn" onclick=clearCanvas()>
+                <img alt="Clear" src="https://img.pngio.com/discard-garbage-in-it-throw-throw-it-in-the-trash-trash-icon-discard-png-512_512.png"
                 width="64" height="64">
             </button>
         </div>
-        <button id="fillBtn" onclick=fillColor()>
-            <img alt="Filler" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Toicon-icon-stone-fill.svg/1200px-Toicon-icon-stone-fill.svg.png"
-            width="64" height="64">
-        </button>
-        <button id="eraserBtn" onclick=setBlackColor()>
-            <img alt="Eraser" src="https://www.freeiconspng.com/uploads/eraser-icon-16.png"
-            width="64" height="64">
-        </button>
-        <button id="clearBtn" onclick=clearCanvas()>
-            <img alt="Clear" src="https://img.pngio.com/discard-garbage-in-it-throw-throw-it-in-the-trash-trash-icon-discard-png-512_512.png"
-            width="64" height="64">
-        </button>
-    </div>
 
-    <script language="javascript" type="text/javascript">
+        <script>
 
-        // color picker
-        var colorPicker = new iro.ColorPicker('#picker', {
-            // Set the size of the color picker
-            width: 100,
-        });
-    
-        // Set up the canvas
-        var canvas = document.getElementById("drawingCanvas");
-        var ctx = canvas.getContext("2d");
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 10;
-        ctx.font = "400px Matrise";
-        var ratio = 40;
-
-        function clearCanvas() {
-            canvas.width = canvas.width;
+            // color picker
+            var colorPicker = new iro.ColorPicker('#picker', {
+                // Set the size of the color picker
+                width: 100,
+            });
+        
+            // Set up the canvas
+            var canvas = document.getElementById("drawingCanvas");
+            var ctx = canvas.getContext("2d");
+            ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = 10;
             ctx.font = "400px Matrise";
-            var req = [{
-                "clear": 1
-            }];
-            doSend(JSON.stringify(req));
-        }
-    
-        function setBlackColor() {
-            colorPicker.color.rgb = { r: 0, g: 0, b: 0 };
-        }
+            var ratio = 40;
 
-        function fillColor() {
-            ctx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
-            ctx.fill();
-            req = [{fill: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]}];
-            doSend(JSON.stringify(req));
-        }
+            function clearCanvas() {
+                canvas.width = canvas.width;
+                ctx.lineWidth = 10;
+                ctx.font = "400px Matrise";
+                var req = [{
+                    "clear": 1
+                }];
+                doSend(JSON.stringify(req));
+            }
+        
+            function setBlackColor() {
+                colorPicker.color.rgb = { r: 0, g: 0, b: 0 };
+            }
 
-        function setText() {
-            canvas.width = canvas.width;
-            ctx.lineWidth = 10;
-            ctx.font = "400px Matrise";
-            var text = document.getElementById("text");
-            ctx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
-            ctx.fillText(text.value, 0, 320);
-            var req = [{
-                    text: text.value,
-                    color: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]
-            }];
-            doSend(JSON.stringify(req));
-        }
+            function fillColor() {
+                ctx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
+                ctx.fill();
+                req = [{fill: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]}];
+                doSend(JSON.stringify(req));
+            }
 
-        //Brightness event
-        var brightnessSlider = document.getElementById("brightness-slider");
-        brightnessSlider.addEventListener("input", function(e) {
-            var req = [{
-                    brightness: brightnessSlider.valueAsNumber
-            }];
-            doSend(JSON.stringify(req));
-        }, false);
+            function setText() {
+                canvas.width = canvas.width;
+                ctx.lineWidth = 10;
+                ctx.font = "400px Matrise";
+                var text = document.getElementById("text");
+                ctx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
+                ctx.fillText(text.value, 0, 320);
+                var req = [{
+                        text: text.value,
+                        color: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]
+                }];
+                doSend(JSON.stringify(req));
+            }
 
-        // Set up mouse events for drawing
-        var drawing = false;
-        var mousePos = { x:0, y:0 };
-        var lastPos = mousePos;
-        var lastSent = mousePos;
-        canvas.addEventListener("mousedown", function (e) {
-                drawing = true;
-                lastPos = getMousePos(canvas, e);
-        }, false);
-        canvas.addEventListener("mouseup", function (e) {
-                drawing = false;
-        }, false);
-        canvas.addEventListener("mousemove", function (e) {
-                mousePos = getMousePos(canvas, e);
-        }, false);
+            //Brightness event
+            var brightnessSlider = document.getElementById("brightness-slider");
+            brightnessSlider.addEventListener("input", function(e) {
+                var req = [{
+                        brightness: brightnessSlider.valueAsNumber
+                }];
+                doSend(JSON.stringify(req));
+            }, false);
 
-        // Get the position of the mouse relative to the canvas
-        function getMousePos(canvasDom, mouseEvent) {
-            var rect = canvasDom.getBoundingClientRect();
-            return {
-                x: mouseEvent.clientX - rect.left,
-                y: mouseEvent.clientY - rect.top
-            };
-        }
-        // Set up touch events for mobile, etc
-        canvas.addEventListener("touchstart", function (e) {
-            mousePos = getTouchPos(canvas, e);
-            var touch = e.touches[0];
-            var mouseEvent = new MouseEvent("mousedown", {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            canvas.dispatchEvent(mouseEvent);
-        }, false);
-        canvas.addEventListener("touchend", function (e) {
-            var mouseEvent = new MouseEvent("mouseup", {});
-            canvas.dispatchEvent(mouseEvent);
-        }, false);
-        canvas.addEventListener("touchmove", function (e) {
-            var touch = e.touches[0];
-            var mouseEvent = new MouseEvent("mousemove", {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            canvas.dispatchEvent(mouseEvent);
-        }, false);
+            // Set up mouse events for drawing
+            var drawing = false;
+            var mousePos = { x:0, y:0 };
+            var lastPos = mousePos;
+            var lastSent = mousePos;
+            canvas.addEventListener("mousedown", function (e) {
+                    drawing = true;
+                    lastPos = getMousePos(canvas, e);
+            }, false);
+            canvas.addEventListener("mouseup", function (e) {
+                    drawing = false;
+            }, false);
+            canvas.addEventListener("mousemove", function (e) {
+                    mousePos = getMousePos(canvas, e);
+            }, false);
 
-        // Get the position of a touch relative to the canvas
-        function getTouchPos(canvasDom, touchEvent) {
-            var rect = canvasDom.getBoundingClientRect();
-            return {
-                x: touchEvent.touches[0].clientX - rect.left,
-                y: touchEvent.touches[0].clientY - rect.top
-            };
-        }
-        // Prevent scrolling when touching the canvas
-        document.body.addEventListener("touchstart", function (e) {
-        if (e.target == canvas) {
-            e.preventDefault();
-        }
-        }, false);
-        document.body.addEventListener("touchend", function (e) {
+            // Get the position of the mouse relative to the canvas
+            function getMousePos(canvasDom, mouseEvent) {
+                var rect = canvasDom.getBoundingClientRect();
+                return {
+                    x: mouseEvent.clientX - rect.left,
+                    y: mouseEvent.clientY - rect.top
+                };
+            }
+            // Set up touch events for mobile, etc
+            canvas.addEventListener("touchstart", function (e) {
+                mousePos = getTouchPos(canvas, e);
+                var touch = e.touches[0];
+                var mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }, false);
+            canvas.addEventListener("touchend", function (e) {
+                var mouseEvent = new MouseEvent("mouseup", {});
+                canvas.dispatchEvent(mouseEvent);
+            }, false);
+            canvas.addEventListener("touchmove", function (e) {
+                var touch = e.touches[0];
+                var mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }, false);
+
+            // Get the position of a touch relative to the canvas
+            function getTouchPos(canvasDom, touchEvent) {
+                var rect = canvasDom.getBoundingClientRect();
+                return {
+                    x: touchEvent.touches[0].clientX - rect.left,
+                    y: touchEvent.touches[0].clientY - rect.top
+                };
+            }
+            // Prevent scrolling when touching the canvas
+            document.body.addEventListener("touchstart", function (e) {
             if (e.target == canvas) {
                 e.preventDefault();
             }
-        }, false);
-        document.body.addEventListener("touchmove", function (e) {
-            if (e.target == canvas) {
-                e.preventDefault();
-            }
-        }, false);
-
-        // Get a regular interval for drawing to the screen
-        window.requestAnimFrame = (function (callback) {
-            return window.requestAnimationFrame || 
-                    window.webkitRequestAnimationFrame ||
-                    window.mozRequestAnimationFrame ||
-                    window.oRequestAnimationFrame ||
-                    window.msRequestAnimaitonFrame ||
-                    function (callback) {
-                        window.setTimeout(callback, 1000/60);
-                    };
-        })();
-
-        // Draw to the canvas
-        function renderCanvas() {
-            if (drawing) {
-                ctx.beginPath();
-                ctx.moveTo(lastPos.x, lastPos.y);
-                ctx.lineTo(mousePos.x + 1, mousePos.y + 1);
-                ctx.strokeStyle = colorPicker.color.hexString;
-                ctx.stroke();
-                lastPos = mousePos;
-                if (lastSent.x != parseInt(mousePos.x / ratio) || lastSent.y != parseInt(mousePos.y / ratio)) {
-                    sendDrawing();
+            }, false);
+            document.body.addEventListener("touchend", function (e) {
+                if (e.target == canvas) {
+                    e.preventDefault();
                 }
-                lastSent.x = parseInt(mousePos.x / ratio);
-                lastSent.y = parseInt(mousePos.y / ratio);
+            }, false);
+            document.body.addEventListener("touchmove", function (e) {
+                if (e.target == canvas) {
+                    e.preventDefault();
+                }
+            }, false);
+
+            // Get a regular interval for drawing to the screen
+            window.requestAnimFrame = (function (callback) {
+                return window.requestAnimationFrame || 
+                        window.webkitRequestAnimationFrame ||
+                        window.mozRequestAnimationFrame ||
+                        window.oRequestAnimationFrame ||
+                        window.msRequestAnimaitonFrame ||
+                        function (callback) {
+                            window.setTimeout(callback, 1000/60);
+                        };
+            })();
+
+            // Draw to the canvas
+            function renderCanvas() {
+                if (drawing) {
+                    ctx.beginPath();
+                    ctx.moveTo(lastPos.x, lastPos.y);
+                    ctx.lineTo(mousePos.x + 1, mousePos.y + 1);
+                    ctx.strokeStyle = colorPicker.color.hexString;
+                    ctx.stroke();
+                    lastPos = mousePos;
+                    if (lastSent.x != parseInt(mousePos.x / ratio) || lastSent.y != parseInt(mousePos.y / ratio)) {
+                        sendDrawing();
+                    }
+                    lastSent.x = parseInt(mousePos.x / ratio);
+                    lastSent.y = parseInt(mousePos.y / ratio);
+                }
             }
-        }
 
-        // Allow for animation
-        (function drawLoop () {
-            requestAnimFrame(drawLoop);
-            renderCanvas();
-        })();
+            // Allow for animation
+            (function drawLoop () {
+                requestAnimFrame(drawLoop);
+                renderCanvas();
+            })();
 
-        function sendDrawing() {
-            var req = [{
-                    pos: [parseInt(mousePos.x / ratio), parseInt(mousePos.y / ratio)],
-                    color: [colorPicker.color.rgb.r, colorPicker.color.rgb.g, colorPicker.color.rgb.b]
-            }];
-            doSend(JSON.stringify(req));
-        }
+            function sendDrawing() {
+                var req = [{
+                        pos: [parseInt(mousePos.x / ratio), parseInt(mousePos.y / ratio)],
+                        color: [colorPicker.color.rgb.r, colorPicker.color.rgb.g, colorPicker.color.rgb.b]
+                }];
+                doSend(JSON.stringify(req));
+            }
 
-    </script>
+        </script>
 
-</body>
+    </body>
