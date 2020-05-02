@@ -21,7 +21,7 @@ X, Y a (int) position of a led,
 R, G, B a (int) color,  
 T a (int) seconds delay,  
 S the starting position of a loop, N the number of iteration of the loop  
-If you provide a test of more than 5 chars, it will automatically be scrolled.  
+If you provide a text of more than 5 chars, it will automatically be scrolled.  
 
 Provide your Wifi credentials in the script or use SmartConfig to connect to your network
 
