@@ -118,11 +118,13 @@
         var ctx = canvas.getContext("2d");
         ctx.strokeStyle = "#FFFFFF";
         ctx.lineWidth = 10;
+        ctx.font = "400px Matrise";
         var ratio = 40;
 
         function clearCanvas() {
             canvas.width = canvas.width;
             ctx.lineWidth = 10;
+            ctx.font = "400px Matrise";
             var req = [{
                 "clear": 1
             }];
@@ -141,7 +143,12 @@
         }
 
         function setText() {
+            canvas.width = canvas.width;
+            ctx.lineWidth = 10;
+            ctx.font = "400px Matrise";
             var text = document.getElementById("text");
+            ctx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
+            ctx.fillText(text.value, 0, 320);
             var req = [{
                     text: text.value,
                     color: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]
