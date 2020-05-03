@@ -27,17 +27,18 @@ async def send_data(filter=False):
     async with websockets.connect(ws, ping_interval=None, max_queue=512) as websocket:
         while True:
             if rasp == False:
-                audio_data = np.frombuffer(stream.read(CHUNK), dtype=DTYPE) 
+                audio_data = np.frombuffer(stream.read(CHUNK), dtype=DTYPE)
+                norm = audio_data / MAX_INT
             else:
-                l, audio_data = stream.read()
+                _, audio_data = stream.read()
                 stream.pause(1)
                 audio_data = unpack("%dh" % (len(audio_data)/2), audio_data)
                 audio_data = np.array(audio_data, dtype=DTYPE)
-            norm = (audio_data - np.min(audio_data)) / (np.max(audio_data) - np.min(audio_data))
+                norm = audio_data / MAX_INT // 4
             fourier = np.abs(np.fft.rfft(norm))
             fourier = fourier[:64]
             matrix = np.reshape(fourier, (32, len(fourier)//32))
-            matrix = np.int_(np.divide(np.multiply(np.mean(matrix, axis=1), 8), 150))
+            matrix = np.int_(np.divide(np.multiply(np.sum(matrix, axis=1), 8), 150))
             cmd = [{"clear": 1}]
             for x, y in enumerate(matrix):
                 for _y in range(y):
@@ -68,10 +69,10 @@ if __name__ == "__main__":
         stream.setrate(RATE)
         stream.setformat(aa.PCM_FORMAT_S16_LE)
         stream.setperiodsize(CHUNK)
-    #try:
-    asyncio.get_event_loop().run_until_complete(send_data(True))
-    #except:
-    asyncio.get_event_loop().run_until_complete(clear())
+    try:
+        asyncio.get_event_loop().run_until_complete(send_data(True))
+    except:
+        asyncio.get_event_loop().run_until_complete(clear())
 
     # close the stream gracefully
     if rasp == None:
