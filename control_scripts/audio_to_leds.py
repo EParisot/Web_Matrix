@@ -1,10 +1,11 @@
 
-import pyaudio
+
 import numpy as np
 import asyncio
 import websockets
 import json
 import time
+import sys
 
 import matplotlib.pyplot as plt
 
@@ -25,8 +26,14 @@ async def send_data(filter=False):
     color = [200, 200, 0]
     async with websockets.connect(ws, ping_interval=None, max_queue=512) as websocket:
         while True:
-            audio_data = np.frombuffer(stream.read(CHUNK), dtype=DTYPE)
-            norm = audio_data / MAX_INT
+            if rasp == False:
+                audio_data = np.frombuffer(stream.read(CHUNK), dtype=DTYPE) 
+            else:
+                l, audio_data = stream.read()
+                stream.pause(1)
+                audio_data = unpack("%dh" % (len(audio_data)/2), audio_data)
+                audio_data = np.array(audio_data, dtype=DTYPE)
+            norm = (audio_data - np.min(audio_data)) / (np.max(audio_data) - np.min(audio_data))
             fourier = np.abs(np.fft.rfft(norm))
             fourier = fourier[:64]
             matrix = np.reshape(fourier, (32, len(fourier)//32))
@@ -41,18 +48,34 @@ async def send_data(filter=False):
                 await websocket.recv()
             except:
                 websocket = await websockets.connect(ws, ping_interval=None, max_queue=512)
-
-
-p=pyaudio.PyAudio() # start the PyAudio class
-stream=p.open(format=pyaudio.paInt16,channels=CHANNELS,rate=RATE,input=True,
-              frames_per_buffer=CHUNK) #uses default input device
-
-try:
+            if rasp:
+                stream.pause(0)
+rasp = False
+stream = None
+if __name__ == "__main__":
+    if "rasp" in sys.argv:
+        rasp = True
+    if rasp == False:
+        import pyaudio
+        p=pyaudio.PyAudio() # start the PyAudio class
+        stream=p.open(format=pyaudio.paInt16,channels=CHANNELS,rate=RATE,input=True,
+                      input_device_index=1, frames_per_buffer=CHUNK) #uses default input device
+    else:
+        import alsaaudio as aa
+        from struct import unpack
+        stream = aa.PCM(aa.PCM_CAPTURE, aa.PCM_NORMAL)
+        stream.setchannels(CHANNELS)
+        stream.setrate(RATE)
+        stream.setformat(aa.PCM_FORMAT_S16_LE)
+        stream.setperiodsize(CHUNK)
+    #try:
     asyncio.get_event_loop().run_until_complete(send_data(True))
-except:
+    #except:
     asyncio.get_event_loop().run_until_complete(clear())
 
-# close the stream gracefully
-stream.stop_stream()
-stream.close()
-p.terminate()
+    # close the stream gracefully
+    if rasp == None:
+        stream.stop_stream()
+    stream.close()
+    if rasp == None:
+        p.terminate()
