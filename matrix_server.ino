@@ -20,6 +20,10 @@ const int ws_port = 1234;
 #define MAX_LEN 65535
 StaticJsonDocument<MAX_LEN> doc;
 
+// Minus LINES to revert back the text
+cLEDMatrix<COLUMNS, -LINES, HORIZONTAL_ZIGZAG_MATRIX> leds;
+cLEDText ScrollingMsg;
+
 String html_content;
 String css_content;
 void read_css() {
@@ -58,6 +62,35 @@ void edit_IP(IPAddress local_IP) {
   html_file.close();
 }
 
+void connecting() {
+    delay(1000);
+    leds(0, 0) = CRGB(200, 0, 0);
+    FastLED.show();
+    delay(1000);
+    FastLED.clear();
+    FastLED.show();
+    delay(1000);
+}
+
+void smart_connecting() {
+    delay(100);
+    leds(0, 0) = CRGB(200, 50, 0);
+    FastLED.show();
+    delay(200);
+    FastLED.clear();
+    FastLED.show();
+    delay(200);
+}
+  
+void connected() {
+    leds(0, 0) = CRGB(0, 200, 0);
+    FastLED.show();
+    delay(1000);
+    FastLED.clear();
+    FastLED.show();
+    delay(10);
+}
+
 WebServer server(http_port);
 WebSocketsServer webSocket = WebSocketsServer(ws_port);
 const char* ssid = "XXXXXXXXXX";
@@ -67,13 +100,13 @@ void init_wifi() {
   // Try to connect to known Wifi
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 5; i++) {
     if (WiFi.status() == WL_CONNECTED) {
       home_wifi = true;
       break;
     }
     Serial.print(".");
-    delay(3000);
+    connecting();
   }
   if (home_wifi == false) {
     //Init WiFi as Station, start SmartConfig
@@ -82,7 +115,7 @@ void init_wifi() {
     //Wait for SmartConfig packet from mobile
     Serial.println("Waiting for SmartConfig.");
     while (!WiFi.smartConfigDone()) {
-      delay(500);
+      smart_connecting();
       Serial.print(".");
     }
     Serial.println("");
@@ -98,6 +131,7 @@ void init_wifi() {
   Serial.println("WiFi Connected.");
   Serial.print("IP Address: ");
   Serial.println(local_IP);
+  connected();
   // Edit IP in html File
   edit_IP(local_IP);
   // On HTTP request for root, provide index.html file
@@ -111,6 +145,7 @@ void init_wifi() {
   // Start WebSocket server and assign callback
   webSocket.begin();
   webSocket.onEvent(onWebSocketEvent);
+  
 }
 
 // Callback: send homepage
@@ -148,12 +183,12 @@ void onPostData() {
     Serial.println(error.c_str());
     return;
   }
-  Serial.println("Request Recieved");
+  //Serial.println("Request Recieved");
   JsonArray jsonArr = doc.as<JsonArray>();
   apply_led(jsonArr);
   free(json);
   server.send(200, "text/plain", "Done");
-  Serial.println("Request Done");
+  //Serial.println("Request Done");
 }
 
 // Callback: receiving any WebSocket message
@@ -183,7 +218,7 @@ void onWebSocketEvent(uint8_t client_num,
     case WStype_TEXT:
       {
         // Print out raw message
-        Serial.printf("[%u] Received text: %s\n", client_num, payload);
+        //Serial.printf("[%u] Received text: %s\n", client_num, payload);
         // Deserialize the JSON document
         DeserializationError JSONerror = deserializeJson(doc, (char *)payload);
         // Test if parsing succeeds.
@@ -195,8 +230,8 @@ void onWebSocketEvent(uint8_t client_num,
         }
         JsonArray jsonArr = doc.as<JsonArray>();
         apply_led(jsonArr);
-        webSocket.sendTXT(client_num, "Request Done");
-        Serial.println("Request Done");
+        webSocket.sendTXT(client_num, "Done");
+        //Serial.println("Request Done");
       }
       break;
  
@@ -212,10 +247,6 @@ void onWebSocketEvent(uint8_t client_num,
   }
 }
 
-// Minus LINES to revert back the text
-cLEDMatrix<COLUMNS, -LINES, HORIZONTAL_ZIGZAG_MATRIX> leds;
-cLEDText ScrollingMsg;
-//CRGB leds[NUM_LEDS];
 void init_leds() {
   FastLED.addLeds<NEOPIXEL, 33>(leds[0], NUM_LEDS);
   FastLED.clear();
@@ -294,9 +325,9 @@ void setup() {
     Serial.println("FileSystem Error...");
     return;
   }
+  init_leds();
   init_wifi(); // and read index + replace proper IP:PORT
   read_css();
-  init_leds();
 }
 
 void loop() {

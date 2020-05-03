@@ -4,10 +4,22 @@ LEDs Matrix Arduino ESP32 controler over HTTP/WebSocket
 Control via Simple Interface :
 ![](imgs/img1.bmp)
 
-And/Or you can send JSON data (via HTTP POST : http://IP:80 or WebSocket : ws://IP:1234) to the device:
+And/Or you can send JSON data (via HTTP POST : http://IP:80 or WebSocket : ws://IP:1234) to the device
+
+Payload should be a JSON Array with one dict per instruction.
+Example:
+```
+To apply instantly every command:  
+[{"pos": [3, 8], "color":[200, 50, 0]}, {"pos": [6, 2], "color":[50, 50, 50]}, ...]  
+  
+Or to send a "program" that will repeat (5 times here from the idx 0 : begining) with 200 delay between every led instruction (blinking):  
+[{"step": 42}, {"pos": [3, 8], "color":[200, 50, 0]}, {"delay": 500}, {"pos": [6, 2], "color":[50, 50, 50]}, {"delay": 200}, {"loop": [0, 5]}]
+```
+
 Commands:  
 ```
-* [{"clear": C},
+* [{"step": St},
+*  {"clear": Cl},
 *  {"pos": [X, Y], "color":[R, G, B]},
 *  {"delay": T},
 *  {"loop": [S, N]},
@@ -15,15 +27,21 @@ Commands:
 *  {"text": String}
 ]
 ```
-  
-with C any random number,  
+ 
+With St and Cl any random number (no meaning),
+Step mode need to be provided in first place to make the loop wait 10ms every iteration (program application),  
+otherwise the loop will run wildly (real time application).  
 X, Y a (int) position of a led,  
 R, G, B a (int) color,  
 T a (int) milliseconds delay,  
 S the starting position of a loop, N the number of iteration of the loop  
 If you provide a text of more than 5 chars, it will automatically be scrolled.  
 
-Provide your Wifi credentials in the script or use SmartConfig to connect to your network
+Provide your Wifi credentials in the script or use SmartConfig to connect to your network.
+At start the program try to connect to the provided network 5 times (red led slowly blinking).  
+If failed, the device will enter in "SmartConfig" mode (orange led blinking fast).  
+Connect with EspTouch application.
+Green led blink one time on any successfull wifi connexion.
 
 libraries needed:
 ```
