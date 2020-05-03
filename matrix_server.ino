@@ -232,11 +232,8 @@ void apply_led(JsonArray jsonArr) {
   int l_s = -1;
   int l_i = -1;
   bool step_by_step = false;
-  for (int j=0; j < jsonArr.size(); ++j) {
-    if (jsonArr[j].containsKey("delay") || jsonArr[j].containsKey("loop")) {
-      step_by_step = true;
-      break;  
-    }
+  if (jsonArr.size() > 0 && jsonArr[0].containsKey("step")) {
+    step_by_step = true;
   }
   while(i < jsonArr.size()) {
     if (jsonArr[i].containsKey("loop")) {
