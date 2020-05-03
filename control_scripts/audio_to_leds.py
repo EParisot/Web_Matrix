@@ -12,9 +12,9 @@ ws = 'ws://192.168.0.17:1234/'
 
 DTYPE = np.int16
 MAX_INT = 32768.0
-CHANNELS = 2
-RATE = 44100
-CHUNK = 4096
+CHANNELS = 1
+RATE = 48000
+CHUNK = 1024
 
 async def clear():
     async with websockets.connect(ws) as websocket:
@@ -28,7 +28,7 @@ async def send_data(filter=False):
             audio_data = np.frombuffer(stream.read(CHUNK), dtype=DTYPE)
             norm = audio_data / MAX_INT
             fourier = np.abs(np.fft.rfft(norm))
-            fourier = np.delete(fourier, len(fourier)-1)[:320]
+            fourier = np.delete(fourier, len(fourier)-1)[:64]
             matrix = np.reshape(fourier, (32, len(fourier)//32))
             matrix = np.int_(np.divide(np.multiply(np.mean(matrix, axis=1), 8), 150))
             cmd = [{"clear": 1}]
