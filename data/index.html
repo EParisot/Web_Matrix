@@ -156,7 +156,7 @@
 
             function fillColor() {
                 canvasCtx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
-                canvasCtx.fill();
+                canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
                 req = [{fill: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]}];
                 doSend(JSON.stringify(req));
             }
@@ -180,8 +180,8 @@
             function setFreqMeter() {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 var analyser = audioCtx.createAnalyser();
-                analyser.minDecibels = -90;
-                analyser.maxDecibels = -10;
+                analyser.minDecibels = -50;
+                analyser.maxDecibels = -6;
                 analyser.smoothingTimeConstant = 0.5;
                 analyser.fftSize = 1024;
                 var finalLength = 32;
