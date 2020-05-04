@@ -15,7 +15,8 @@
       
         <!-- Stylesheets -->
         <link rel="stylesheet" type="text/css" href="style.css">
-
+        <script>(function(s){var w,f={},o=window,l=console,m=Math,z='postMessage',p=0,r='hasOwnProperty',y=[].slice,x='fail',v=o.Worker;function d(){do{p=0x7FFFFFFF>p?p+1:0}while(f[r](p));return p}if(!/MSIE 10/i.test(navigator.userAgent)){try{s=o.URL.createObjectURL(new Blob(["var f={},p=postMessage,r='hasOwnProperty';onmessage=function(e){var d=e.data,i=d.i,t=d[r]('t')?d.t:0;switch(d.n){case'a':f[i]=setInterval(function(){p(i)},t);break;case'b':if(f[r](i)){clearInterval(f[i]);delete f[i]}break;case'c':f[i]=setTimeout(function(){p(i);if(f[r](i))delete f[i]},t);break;case'd':if(f[r](i)){clearTimeout(f[i]);delete f[i]}break}}"]))}catch(e){}}if(typeof(v)!=='undefined'){try{w=new v(s);o.setInterval=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2)};w[z]({n:'a',i:i,t:t});return i};o.clearInterval=function(i){if(f[r](i))delete f[i],w[z]({n:'b',i:i})};o.setTimeout=function(c,t){var i=d();f[i]={c:c,p:y.call(arguments,2),t:!0};w[z]({n:'c',i:i,t:t});return i};o.clearTimeout=function(i){if(f[r](i))delete f[i],w[z]({n:'d',i:i})};w.onmessage=function(e){var i=e.data,c,n;if(f[r](i)){n=f[i];c=n.c;if(n[r]('t'))delete f[i]}if(typeof(c)=='string')try{c=new Function(c)}catch(k){}if(typeof(c)=='function')c.apply(o,n.p)}}catch(e){l.log(x)}}else l.log(x)})('HackTimerWorker.min.js');
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
         <script>
 
@@ -54,15 +55,14 @@
                 // Log disconnection state
                 console.log("Disconnected");
                 
-                // Try to reconnect after a few seconds
-                setTimeout(function() { wsConnect(url) }, 2000);
+                // Try to reconnect after a few milliseconds
+                setTimeout(function() { wsConnect(url) }, 10);
             }
             
             // Called when a message is received from the server
             function onMessage(evt) {
-            
                 // Print out our received message
-                console.log("Received: " + evt.data);
+                //console.log("Received: " + evt.data);
             }
             
             // Called when a WebSocket error occurs
@@ -72,7 +72,7 @@
             
             // Sends a message to the server (and prints it to the console)
             function doSend(message) {
-                console.log("Sending: " + message);
+                //console.log("Sending: " + message);
                 websocket.send(message);
             }
             
@@ -101,6 +101,13 @@
                     width="64" height="64">
                 </button>
             </div>
+            <div>
+                <p>FreqMeter</p>
+                <label class="switch">
+                    <input id="switchBtn" type="checkbox" onchange=setFreqMeter()>
+                    <span class="slider round"></span>
+                </label>
+            </div>
             <button id="fillBtn" onclick=fillColor()>
                 <img alt="Filler" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Toicon-icon-stone-fill.svg/1200px-Toicon-icon-stone-fill.svg.png"
                 width="64" height="64">
@@ -116,7 +123,7 @@
         </div>
 
         <script>
-
+            
             // color picker
             var colorPicker = new iro.ColorPicker('#picker', {
                 // Set the size of the color picker
@@ -125,16 +132,18 @@
         
             // Set up the canvas
             var canvas = document.getElementById("drawingCanvas");
-            var ctx = canvas.getContext("2d");
-            ctx.strokeStyle = "#FFFFFF";
-            ctx.lineWidth = 10;
-            ctx.font = "400px Matrise";
+            var canvasCtx = canvas.getContext("2d");
+            canvasCtx.strokeStyle = "#FFFFFF";
+            canvasCtx.lineWidth = 10;
+            canvasCtx.font = "400px Matrise";
             var ratio = 40;
-
+            var WIDTH = canvas.width;
+            var HEIGHT = canvas.height;
+            
             function clearCanvas() {
                 canvas.width = canvas.width;
-                ctx.lineWidth = 10;
-                ctx.font = "400px Matrise";
+                canvasCtx.lineWidth = 10;
+                canvasCtx.font = "400px Matrise";
                 var req = [{
                     "clear": 1
                 }];
@@ -146,24 +155,123 @@
             }
 
             function fillColor() {
-                ctx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
-                ctx.fill();
+                canvasCtx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
+                canvasCtx.fill();
                 req = [{fill: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]}];
                 doSend(JSON.stringify(req));
             }
 
             function setText() {
                 canvas.width = canvas.width;
-                ctx.lineWidth = 10;
-                ctx.font = "400px Matrise";
+                canvasCtx.lineWidth = 10;
+                canvasCtx.font = "400px Matrise";
                 var text = document.getElementById("text");
-                ctx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
-                ctx.fillText(text.value, 0, 320);
+                canvasCtx.fillStyle = 'rgba('+ colorPicker.color.rgb.r +','+ colorPicker.color.rgb.g +','+ colorPicker.color.rgb.b +',1)';
+                canvasCtx.fillText(text.value, 0, 320);
                 var req = [{
                         text: text.value,
                         color: [colorPicker.color.rgb.r , colorPicker.color.rgb.g , colorPicker.color.rgb.b]
                 }];
                 doSend(JSON.stringify(req));
+            }
+
+            var streamObj;
+            var drawVisual;
+            function setFreqMeter() {
+                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                var analyser = audioCtx.createAnalyser();
+                analyser.minDecibels = -90;
+                analyser.maxDecibels = -10;
+                analyser.smoothingTimeConstant = 0.5;
+                analyser.fftSize = 1024;
+                var finalLength = 32;
+                var finalArray = new Uint8Array(finalLength);
+                var dataLength = analyser.frequencyBinCount;
+                var dataArray = new Uint8Array(dataLength);
+                var source;
+                var err;
+                var switchBtn = document.getElementById("switchBtn");
+                if (switchBtn.checked == true){
+                    // Older browsers might not implement mediaDevices at all, so we set an empty object first
+                    if (navigator.mediaDevices === undefined) {
+                        navigator.mediaDevices = {};
+                    }
+                    var constraints = { audio: true, video: false };
+                    // Some browsers partially implement mediaDevices. We can't just assign an object
+                    // with getUserMedia as it would overwrite existing properties.
+                    // Here, we will just add the getUserMedia property if it's missing.
+                    if (navigator.mediaDevices.getUserMedia === undefined) {
+                        navigator.mediaDevices.getUserMedia = function(constraints) {
+
+                        // First get ahold of the legacy getUserMedia, if present
+                        var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+                        // Some browsers just don't implement it - return a rejected promise with an error
+                        // to keep a consistent interface
+                        if (!getUserMedia) {
+                            return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                        }
+
+                        // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+                        return new Promise(function(resolve, reject) {
+                            getUserMedia.call(navigator, constraints, resolve, reject);
+                        });
+                        }
+                    }
+                    navigator.mediaDevices.getUserMedia(constraints)
+                        .then(function(stream) {
+                            streamObj = stream;
+                            source = audioCtx.createMediaStreamSource(stream);
+                            source.connect(analyser);
+
+                            
+                            var drawFreq = async function() {
+                                analyser.getByteFrequencyData(dataArray);
+                                dataArray.length = 64;
+                                dataLength = 64;
+                                for (var i = 0; i < finalLength; i++) {
+                                    var sum = 0;
+                                    var batchLength = dataLength / finalLength;
+                                    for (var j = 0; j < batchLength; j++) {
+                                        sum = sum + dataArray[i * batchLength + j];
+                                    }
+                                    finalArray[i] = sum / batchLength;
+                                }
+                                canvasCtx.fillStyle = 'rgb(0, 0, 0)';
+                                canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+                                var req = [{
+                                    clear: 1
+                                }];
+                                var barWidth = (WIDTH / finalLength);
+                                var barHeight;
+                                var x = 0;
+                                for(var i = 0; i < finalLength; i++) {
+                                    barHeight = 8 * finalArray[i] / 128;                                   
+                                    if (barHeight > 0.0) {
+                                        for(var j = 0; j < barHeight; j++) {
+                                            canvasCtx.fillStyle = 'rgb(' + j/8*255 + ',' + ((8 - j)/8*255) + ',0)';
+                                            canvasCtx.fillRect(x,HEIGHT-j*HEIGHT/8,barWidth,HEIGHT/8);
+                                            req.push({
+                                                    pos: [i, 8-j],
+                                                    color: [j/8*200, ((8 - j)/8*200), 0]
+                                            });
+                                        }
+                                    }
+                                    x += barWidth + 1;
+                                }
+                                await doSend(JSON.stringify(req));
+                            };
+                            drawVisual = setInterval(drawFreq, 1000/20);
+                        })
+                        .catch(function(err) {
+                            /* handle the error */
+                        });
+                } else {
+                    clearInterval(drawVisual);
+                    streamObj.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                }
             }
 
             //Brightness event
@@ -262,11 +370,11 @@
             // Draw to the canvas
             function renderCanvas() {
                 if (drawing) {
-                    ctx.beginPath();
-                    ctx.moveTo(lastPos.x, lastPos.y);
-                    ctx.lineTo(mousePos.x + 1, mousePos.y + 1);
-                    ctx.strokeStyle = colorPicker.color.hexString;
-                    ctx.stroke();
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(lastPos.x, lastPos.y);
+                    canvasCtx.lineTo(mousePos.x + 1, mousePos.y + 1);
+                    canvasCtx.strokeStyle = colorPicker.color.hexString;
+                    canvasCtx.stroke();
                     lastPos = mousePos;
                     if (lastSent.x != parseInt(mousePos.x / ratio) || lastSent.y != parseInt(mousePos.y / ratio)) {
                         sendDrawing();
