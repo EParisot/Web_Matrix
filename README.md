@@ -3,9 +3,10 @@ LEDs Matrix Arduino ESP32 controler over HTTP/WebSocket
 
 Control via a Simple Web Interface :
 ![](imgs/img1.bmp)  
-![](imgs/img2.bmp)
 
-TIP : To allow microphone to work on a local unsecured connection with chrome : https://medium.com/@Carmichaelize/enabling-the-microphone-camera-in-chrome-for-local-unsecure-origins-9c90c3149339)
+TIP : To allow microphone to work on a local unsecured connection with chrome : https://medium.com/@Carmichaelize/enabling-the-microphone-camera-in-chrome-for-local-unsecure-origins-9c90c3149339)  
+
+![](imgs/img2.bmp)
 
 You also can send JSON data (via HTTP POST : http://IP:80 OR WebSocket : ws://IP:1234) to the device
 
