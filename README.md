@@ -57,3 +57,5 @@ FastLED -> https://github.com/FastLED/FastLED
 LEDMatrix -> https://github.com/AaronLiddiment/LEDMatrix
 LEDText -> https://github.com/AaronLiddiment/LEDText
 ```
+Thanks to @turulsan for this awsome trick that allow the frequencymeter to run while the window is minimized... : 
+https://github.com/turuslan/HackTimer
