@@ -180,7 +180,7 @@
             function setFreqMeter() {
                 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 var analyser = audioCtx.createAnalyser();
-                analyser.minDecibels = -50;
+                analyser.minDecibels = -90;
                 analyser.maxDecibels = -6;
                 analyser.smoothingTimeConstant = 0.5;
                 analyser.fftSize = 1024;
