@@ -93,8 +93,8 @@ void connected() {
 
 WebServer server(http_port);
 WebSocketsServer webSocket = WebSocketsServer(ws_port);
-const char* ssid = "XXXXXXXXXX";
-const char* password =  "XXXXXXXXXX";
+const char* ssid = "FREEBOX_PARISOT";
+const char* password =  "christina1507";
 void init_wifi() {
   bool home_wifi = false;
   // Try to connect to known Wifi
@@ -341,6 +341,6 @@ void loop() {
       ScrollingMsg.SetText((unsigned char *)text, strlen(text));
     else
       FastLED.show();
-      delay(100);
+      delay(50);
   }
 }

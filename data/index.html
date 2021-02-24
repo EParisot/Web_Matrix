@@ -73,7 +73,9 @@
             // Sends a message to the server (and prints it to the console)
             function doSend(message) {
                 //console.log("Sending: " + message);
-                websocket.send(message);
+				if (websocket.readyState === 1) {
+                	websocket.send(message);
+				}
             }
             
             // Call the init function as soon as the page loads
@@ -101,13 +103,16 @@
                     width="64" height="64">
                 </button>
             </div>
-            <div>
-                <p>FreqMeter</p>
-                <label class="switch">
-                    <input id="switchBtn" type="checkbox" onchange=setFreqMeter()>
+			<div class="selectDiv">
+				<select id="cycleSelect">
+					<option>freq_meter</option>
+					<option>rainbow</option>
+				</select>
+				<label class="switch">
+                    <input id="switchBtn" type="checkbox" onchange=selectSubmit()>
                     <span class="slider round"></span>
                 </label>
-            </div>
+			</div>
             <button id="fillBtn" onclick=fillColor()>
                 <img alt="Filler" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Toicon-icon-stone-fill.svg/1200px-Toicon-icon-stone-fill.svg.png"
                 width="64" height="64">
@@ -129,6 +134,8 @@
                 // Set the size of the color picker
                 width: 100,
             });
+
+			var cycleInterval;
         
             // Set up the canvas
             var canvas = document.getElementById("drawingCanvas");
@@ -261,7 +268,7 @@
                                 }
                                 await doSend(JSON.stringify(req));
                             };
-                            drawVisual = setInterval(drawFreq, 1000/20);
+                            drawVisual = setInterval(drawFreq, 50);
                         })
                         .catch(function(err) {
                             /* handle the error */
@@ -274,7 +281,45 @@
                 }
             }
 
-            //Brightness event
+			function setRainbow() {
+				var x = 0;
+				var run = async function() {
+					var switchBtn = document.getElementById("switchBtn");
+					if (switchBtn.checked == true){			
+						var reqs = [];
+						for (var i = 0; i < 8; ++i) {
+							for (var j = 0; j < 32; ++j) {
+								var req = {
+									pos: [j, i],
+									color: [Math.trunc(255 * Math.sin(j/32)), Math.trunc(255 * Math.sin(i/8)), Math.trunc(255 * Math.sin(x))]
+								};
+								reqs.push(req);
+							}
+							await doSend(JSON.stringify(reqs));
+							var reqs = [];
+						}
+						
+						++x;
+						if (x > 360) {
+							x = 0;
+						}
+					} else {
+						clearInterval(cycleInterval);
+					}
+				}
+				cycleInterval = setInterval(run, 200);
+			}
+
+			function selectSubmit() {
+				var cycle = document.getElementById("cycleSelect").value;
+				if (cycle == "rainbow") {
+					setRainbow();
+				} else if (cycle == "freq_meter") {
+					setFreqMeter();
+				}
+			}
+			
+			//Brightness event
             var brightnessSlider = document.getElementById("brightness-slider");
             brightnessSlider.addEventListener("input", function(e) {
                 var req = [{

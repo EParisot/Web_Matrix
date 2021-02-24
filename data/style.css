@@ -12,6 +12,15 @@
     justify-content: space-evenly;
 }
 
+.selectDiv {
+	display: flex;
+	flex-direction: column;
+}
+
+select {
+	margin-bottom: 20px;
+}
+
 input {
     font-size: 20px;
   }
