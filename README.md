@@ -28,7 +28,7 @@ Commands:
 *  {"delay": T},
 *  {"loop": [S, N]},
 *  {"fill": [R, G, B]},
-*  {"text": String}
+*  {"text": String, "color": [R, G, B]}
 ]
 ```
  
