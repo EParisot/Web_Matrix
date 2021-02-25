@@ -147,6 +147,10 @@
             var ratio = 40;
             var WIDTH = canvas.width;
             var HEIGHT = canvas.height;
+			var cols = 32;
+			var rows = 8;
+			var x_ratio = Math.floor(WIDTH/cols);
+			var y_ratio = Math.floor(HEIGHT/rows);
             
             function clearCanvas() {
                 canvas.width = canvas.width;
@@ -233,7 +237,7 @@
                             source.connect(analyser);
 
                             
-                            var drawFreq = async function() {
+                            var drawFreq = function() {
                                 analyser.getByteFrequencyData(dataArray);
                                 dataArray.length = 64;
                                 dataLength = 64;
@@ -267,7 +271,7 @@
                                     }
                                     x += barWidth + 1;
                                 }
-                                await doSend(JSON.stringify(req));
+                                doSend(JSON.stringify(req));
                             };
                             drawVisual = setInterval(drawFreq, 50);
                         })
@@ -282,33 +286,12 @@
                 }
             }
 
-			function setRainbow() {
-				var x = 0;
-				var switchBtn = document.getElementById("switchBtn");
-				if (switchBtn.checked == true){
-					var run = async function() {
-							
-						var reqs = [];
-						for (var i = 0; i < 8; ++i) {
-							for (var j = 0; j < 32; ++j) {
-								var req = {
-									pos: [j, i],
-									color: [Math.trunc(255 * Math.sin(j/32)), Math.trunc(255 * Math.sin(i/8)), Math.trunc(255 * Math.sin(x))]
-								};
-								reqs.push(req);
-							}
-							await doSend(JSON.stringify(reqs));
-							var reqs = [];
-						}
-						++x;
-						if (x > 360) {
-							x = 0;
-						}
-					}
-					cycleInterval = setInterval(run, 200);
-				} else {
-					clearInterval(cycleInterval);
-				}
+			function Dot(x, y){
+				this.x = x;
+				this.y = y;
+				this.width = x_ratio;
+				this.height = y_ratio;
+				this.color = null;
 			}
 
 			/* accepts parameters
@@ -339,23 +322,82 @@
 					g: Math.round(g * 255),
 					b: Math.round(b * 255)
 				};
-			} 
+			}
+
+			function selectSubmit() {
+				var cycle = document.getElementById("cycleSelect").value;
+				if (cycle == "rainbow") {
+					setRainbow();
+				} else if (cycle == "freq_meter") {
+					setFreqMeter();
+				} else if (cycle == "perlin_noise") {
+					perlinNoise();
+				}
+			}
+
+			function setRainbow() {
+				var x = 0
+				Dot.prototype.update = function(time){
+					this.color = {r: Math.trunc(255 * Math.sin(this.x/x_ratio/32)), g: Math.trunc(255 * Math.sin(this.y/y_ratio/8)), b: Math.trunc(255 * Math.sin(x))};
+				}; 
+
+				Dot.prototype.draw = function(){
+					canvasCtx.beginPath();
+					canvasCtx.rect(this.x, this.y, this.width, this.height);
+					canvasCtx.fillStyle = "rgb(" + this.color.r + ", " + this.color.g + ", " + this.color.b + ")";
+					canvasCtx.fill();
+				};
+
+				var dots = [];
+				var reqs = [];
+				for(var y = 0; y < rows ; y++){
+					for(var x = 0; x < cols ; x++){
+						dots.push(new Dot(x * x_ratio, y * y_ratio));
+						reqs.push({
+							pos: [x, y],
+							color: [0, 0, 0]
+						});
+					}
+				}
+
+				var FPS = 10;
+				var lastTimestamp = 0;
+				var render = function(timestamp) {
+					cycleInterval = requestAnimationFrame(render);
+					if (timestamp - lastTimestamp < 1000 / FPS) return;
+					lastTimestamp = timestamp;
+					canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+					var n = 0;
+					var r = [];
+					for (var j=0; j < rows; j++) {
+						for(var i=0; i < cols; i++) {					
+							dots[n].update(timestamp);
+							reqs[n].color[0] = dots[n].color.r;
+							reqs[n].color[1] = dots[n].color.g;
+							reqs[n].color[2] = dots[n].color.b;
+							r.push(reqs[n]);
+							dots[n].draw();
+							n++;
+						}
+						doSend(JSON.stringify(r));
+						r = [];
+					}
+					
+					x++;
+					if (x > 360) {
+						x = 0;
+					}
+				}
+					
+				var switchBtn = document.getElementById("switchBtn");
+				if (switchBtn.checked == true){
+					cycleInterval = requestAnimationFrame(render);
+				} else {
+					cancelAnimationFrame(cycleInterval);
+				}
+			}
 
 			function perlinNoise() {
-				var ww = WIDTH;
-				var wh = HEIGHT;
-				var cols = 32;
-				var rows = 8;
-				var x_ratio = Math.floor(ww/cols);
-				var y_ratio = Math.floor(wh/rows);
-
-				function Dot(x, y){
-					this.x = x;
-					this.y = y;
-					this.width = x_ratio;
-					this.height = y_ratio;
-					this.color = null;
-				}
 
 				Dot.prototype.update = function(time){
 					this.color = {h: Math.abs(noise.simplex3(this.x*0.001, this.y*0.001, time*0.0005)) * 360, s: 70, l: 50};
@@ -372,7 +414,7 @@
 				var reqs = [];
 				for(var y = 0; y < rows ; y++){
 					for(var x = 0; x < cols ; x++){
-						dots.push( new Dot(x*x_ratio, y*y_ratio) );
+						dots.push(new Dot(x * x_ratio, y * y_ratio));
 						reqs.push({
 							pos: [x, y],
 							color: [0, 0, 0]
@@ -386,8 +428,8 @@
 					cycleInterval = requestAnimationFrame(render);
 					if (timestamp - lastTimestamp < 1000 / FPS) return;
 					lastTimestamp = timestamp;
-					canvasCtx.clearRect(0, 0, ww, wh);
-					for(var i=0;i<dots.length;i++){
+					canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+					for(var i=0; i < dots.length; i++){
 						dots[i].update(timestamp);
 						dots[i].draw();
 						var rgb = HSVtoRGB(dots[i].color.h / 360, dots[i].color.s / 100, dots[i].color.l / 100);
@@ -403,17 +445,6 @@
 					cycleInterval = requestAnimationFrame(render);
 				} else {
 					cancelAnimationFrame(cycleInterval);
-				}
-			}
-
-			function selectSubmit() {
-				var cycle = document.getElementById("cycleSelect").value;
-				if (cycle == "rainbow") {
-					setRainbow();
-				} else if (cycle == "freq_meter") {
-					setFreqMeter();
-				} else if (cycle == "perlin_noise") {
-					perlinNoise();
 				}
 			}
 			
