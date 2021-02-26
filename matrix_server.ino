@@ -341,6 +341,6 @@ void loop() {
       ScrollingMsg.SetText((unsigned char *)text, strlen(text));
     else
       FastLED.show();
-      delay(50);
+      delay(20);
   }
 }
